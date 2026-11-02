@@ -7,9 +7,9 @@ import pytest
 from packet_analyzer import (
     DEFAULT_CAPTURE_DURATION,
     DEFAULT_PACKET_LIMIT,
-    PacketAnalyzer,
     MAX_DISPLAY_TEXT,
     OTHER_ADDRESS_BUCKET,
+    PacketAnalyzer,
     increment_bounded,
     safe_terminal_text,
 )
