@@ -1,7 +1,6 @@
 import sqlite3
 
 import pytest
-
 from app.secure_app import UserStore
 
 
