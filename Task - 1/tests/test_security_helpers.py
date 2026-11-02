@@ -2,8 +2,12 @@
 
 from collections import Counter
 
+import pytest
+
 from packet_analyzer import (
+    DEFAULT_CAPTURE_DURATION,
     DEFAULT_PACKET_LIMIT,
+    PacketAnalyzer,
     MAX_DISPLAY_TEXT,
     OTHER_ADDRESS_BUCKET,
     increment_bounded,
@@ -37,5 +41,31 @@ def test_address_counter_has_a_fixed_key_budget():
     assert len(counts) == 4
 
 
-def test_packet_capture_default_is_bounded():
+def test_packet_capture_defaults_are_bounded():
     assert DEFAULT_PACKET_LIMIT == 1000
+    assert DEFAULT_CAPTURE_DURATION == 30
+
+
+def test_zero_packet_limit_is_rejected():
+    with pytest.raises(ValueError, match="positive integer"):
+        PacketAnalyzer(packet_limit=0)
+
+
+def test_capture_duration_has_a_finite_upper_bound():
+    with pytest.raises(ValueError, match="between 1 and 3600"):
+        PacketAnalyzer(capture_duration=3601)
+
+
+def test_run_passes_packet_and_time_limits_to_scapy(monkeypatch):
+    captured_options = {}
+
+    def fake_sniff(**kwargs):
+        captured_options.update(kwargs)
+
+    monkeypatch.setattr("packet_analyzer.sniff", fake_sniff)
+    analyzer = PacketAnalyzer(packet_limit=7, capture_duration=5)
+    analyzer.run()
+
+    assert captured_options["count"] == 7
+    assert captured_options["timeout"] == 5
+    assert captured_options["store"] is False
