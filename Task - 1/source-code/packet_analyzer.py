@@ -14,10 +14,11 @@ except ImportError:
 
 MAX_TRACKED = 2048
 MAX_TEXT = 120
-DEFAULT_COUNT = 1000
-DEFAULT_SECONDS = 30
-MAX_SECONDS = 3600
-OTHER = "<other addresses>"
+DEFAULT_PACKET_LIMIT = 1000
+DEFAULT_CAPTURE_DURATION = 30
+MAX_CAPTURE_DURATION = 3600
+OTHER_ADDRESS_BUCKET = "<other addresses>"
+MAX_DISPLAY_TEXT = MAX_TEXT
 
 
 def safe_terminal_text(value: object, limit: int = MAX_TEXT) -> str:
@@ -33,17 +34,17 @@ def increment_bounded(counter: Counter[str], key: str, limit: int) -> None:
     elif len(counter) < limit:
         counter[key] = 1
     else:
-        counter[OTHER] += 1
+        counter[OTHER_ADDRESS_BUCKET] += 1
 
 
 class PacketAnalyzer:
     """Capture and display authorized network traffic."""
 
     def __init__(self, interface=None, capture_filter=None,
-                 packet_limit=DEFAULT_COUNT, duration=DEFAULT_SECONDS):
+                 packet_limit=DEFAULT_PACKET_LIMIT, duration=DEFAULT_CAPTURE_DURATION):
         if packet_limit < 1:
             raise ValueError("Packet count must be greater than zero")
-        if not 1 <= duration <= MAX_SECONDS:
+        if not 1 <= duration <= MAX_CAPTURE_DURATION:
             raise ValueError(f"Duration must be 1-{MAX_SECONDS} seconds")
         if capture_filter and len(capture_filter) > 256:
             raise ValueError("Filter must be 256 characters or fewer")
