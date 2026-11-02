@@ -90,15 +90,15 @@ The vulnerable sample is intentionally excluded from static-scan pass criteria b
 
 ## 5. Automated verification
 
-Fill in the execution evidence after running the commands in the project README.
+Verified GitHub Actions run on 2 November 2026: [Task 3 Secure Code Checks](https://github.com/mahrshi78/mahrshi78/actions/runs/41419521881).
 
-| Check | Command | Result |
+| Check | Command | Verified result |
 |---|---|---|
-| Unit/security tests | `python -m pytest "Task - 3/tests" -v` | Pending local execution |
-| Bandit | `python -m bandit -q "Task - 3/app/secure_app.py"` | Pending local execution |
-| Ruff | `python -m ruff check "Task - 3/app/secure_app.py" "Task - 3/tests"` | Pending local execution |
+| Unit/security tests | `python -m pytest "Task - 3/tests" -v` | PASS — 7 tests passed |
+| Bandit | `python -m bandit -q "Task - 3/app/secure_app.py"` | PASS — no findings reported |
+| Ruff | `python -m ruff check "Task - 3/app/secure_app.py" "Task - 3/tests"` | PASS — no lint errors |
 
-Do not report a tool as passed unless its output confirms success. Keep screenshots or terminal output in the `screenshots/` folder.
+These results apply to the secure implementation and listed test suite in the cited CI run. Keep screenshots of the run or terminal output in the `screenshots/` folder if separate submission evidence is required.
 
 ## 6. Residual risks and limitations
 
