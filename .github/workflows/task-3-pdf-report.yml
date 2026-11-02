@@ -1,0 +1,57 @@
+name: Build Task 3 PDF Report
+
+on:
+  push:
+    paths:
+      - "Task - 3/reports/SECURITY_ASSESSMENT.md"
+      - "Task - 3/reports/REMEDIATION_GUIDE.md"
+      - ".github/workflows/task-3-pdf-report.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-commit-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install Pandoc and PDF engine
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex texlive-fonts-recommended
+      - name: Assemble report sources
+        run: |
+          {
+            echo '\\newpage'
+            cat "Task - 3/reports/SECURITY_ASSESSMENT.md"
+            echo
+            echo '\\newpage'
+            sed '1d' "Task - 3/reports/REMEDIATION_GUIDE.md"
+          } > /tmp/task3-report.md
+      - name: Generate PDF
+        run: |
+          pandoc /tmp/task3-report.md \
+            --output="Task - 3/reports/Task_3_Secure_Code_Assessment_Report.pdf" \
+            --pdf-engine=xelatex \
+            --metadata title="Task 3 — Secure Code Assessment Report" \
+            --metadata subtitle="User Management CLI | CodSoft Cyber Security Internship" \
+            --metadata author="CodSoft Cyber Security Internship" \
+            --metadata date="02 November 2026" \
+            --variable geometry:a4paper,margin=20mm \
+            --variable colorlinks=true \
+            --toc
+      - name: Commit generated PDF
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "Task - 3/reports/Task_3_Secure_Code_Assessment_Report.pdf"
+          if git diff --cached --quiet; then
+            echo "PDF is already up to date."
+          else
+            git commit -m "Add generated Task 3 security assessment PDF"
+            git push
+          fi
