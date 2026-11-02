@@ -1,10 +1,4 @@
-"""Network Packet Analyzer.
-
-Live packet monitoring for networks you own or are authorized to inspect.
-
-Install dependencies with: python -m pip install -r requirements.txt
-On Windows, install Npcap. Use only the minimum privileges needed to capture.
-"""
+"""Short, bounded network packet analyzer using Scapy."""
 
 from __future__ import annotations
 
@@ -15,243 +9,149 @@ from datetime import datetime
 try:
     from scapy.all import ARP, DNS, DNSQR, ICMP, IP, TCP, UDP, Ether, sniff
 except ImportError:
-    print(
-        "Scapy is missing. Install dependencies with: "
-        "python -m pip install -r requirements.txt"
-    )
+    print("Scapy missing. Install: python -m pip install scapy")
     raise SystemExit(1)
 
+MAX_TRACKED = 2048
+MAX_TEXT = 120
+DEFAULT_COUNT = 1000
+DEFAULT_SECONDS = 30
+MAX_SECONDS = 3600
+OTHER = "<other addresses>"
 
-MAX_TRACKED_ADDRESSES = 2048
-MAX_DISPLAY_TEXT = 120
-DEFAULT_PACKET_LIMIT = 1000
-DEFAULT_CAPTURE_DURATION = 30
-MAX_CAPTURE_DURATION = 3600
-OTHER_ADDRESS_BUCKET = "<other addresses>"
 
-
-def safe_terminal_text(value: object, limit: int = MAX_DISPLAY_TEXT) -> str:
-    """Make packet-derived text safe for terminal output and cap its length."""
-    text = str(value)
-    printable = "".join(char if char.isprintable() else "?" for char in text)
-    if len(printable) > limit:
-        return printable[: max(0, limit - 3)] + "..."
-    return printable
+def safe_terminal_text(value: object, limit: int = MAX_TEXT) -> str:
+    """Remove terminal control characters and limit displayed text."""
+    text = "".join(ch if ch.isprintable() else "?" for ch in str(value))
+    return text if len(text) <= limit else text[:limit - 3] + "..."
 
 
 def increment_bounded(counter: Counter[str], key: str, limit: int) -> None:
-    """Count a value without allowing unbounded key growth."""
+    """Keep address counters within a fixed memory budget."""
     if key in counter:
         counter[key] += 1
     elif len(counter) < limit:
         counter[key] = 1
     else:
-        counter[OTHER_ADDRESS_BUCKET] += 1
+        counter[OTHER] += 1
 
 
 class PacketAnalyzer:
-    """Capture and summarize network packets."""
+    """Capture and display authorized network traffic."""
 
-    def __init__(
-        self,
-        interface: str | None = None,
-        capture_filter: str | None = None,
-        packet_limit: int = DEFAULT_PACKET_LIMIT,
-        capture_duration: int = DEFAULT_CAPTURE_DURATION,
-    ) -> None:
-        if packet_limit <= 0:
-            raise ValueError("packet_limit must be a positive integer")
-        if not 1 <= capture_duration <= MAX_CAPTURE_DURATION:
-            raise ValueError(
-                f"capture_duration must be between 1 and {MAX_CAPTURE_DURATION} seconds"
-            )
-        if capture_filter is not None and len(capture_filter) > 256:
-            raise ValueError("capture filter must be 256 characters or fewer")
+    def __init__(self, interface=None, capture_filter=None,
+                 packet_limit=DEFAULT_COUNT, duration=DEFAULT_SECONDS):
+        if packet_limit < 1:
+            raise ValueError("Packet count must be greater than zero")
+        if not 1 <= duration <= MAX_SECONDS:
+            raise ValueError(f"Duration must be 1-{MAX_SECONDS} seconds")
+        if capture_filter and len(capture_filter) > 256:
+            raise ValueError("Filter must be 256 characters or fewer")
 
         self.interface = interface
         self.capture_filter = capture_filter
         self.packet_limit = packet_limit
-        self.capture_duration = capture_duration
-        self.total_packets = 0
-        self.protocols: Counter[str] = Counter()
-        self.sources: Counter[str] = Counter()
-        self.destinations: Counter[str] = Counter()
+        self.duration = duration
+        self.total = 0
+        self.protocols = Counter()
+        self.sources = Counter()
+        self.destinations = Counter()
 
     @staticmethod
-    def banner() -> None:
-        print("\033[96m" + "=" * 72)
-        print("                      NETWORK PACKET ANALYZER")
-        print("=" * 72 + "\033[0m")
-        print("  Engine       : Python + Scapy")
-        print("  Purpose      : Authorized network traffic monitoring")
-        print("  Privacy      : Packet metadata may be sensitive")
-        print("  Stop         : Ctrl+C")
-        print("=" * 72)
-
-    @staticmethod
-    def protocol_name(packet) -> str:
-        if packet.haslayer(ARP):
-            return "ARP"
-        if packet.haslayer(DNS):
-            return "DNS"
-        if packet.haslayer(TCP):
-            return "TCP"
-        if packet.haslayer(UDP):
-            return "UDP"
-        if packet.haslayer(ICMP):
-            return "ICMP"
-        if packet.haslayer(IP):
-            return "IP"
+    def protocol(packet):
+        for layer, name in (
+            (ARP, "ARP"), (DNS, "DNS"), (TCP, "TCP"),
+            (UDP, "UDP"), (ICMP, "ICMP"), (IP, "IP")
+        ):
+            if packet.haslayer(layer):
+                return name
         return "OTHER"
 
-    def handle_packet(self, packet) -> None:
-        """Print a bounded summary of a captured packet."""
-        self.total_packets += 1
-        protocol = self.protocol_name(packet)
+    def show_packet(self, packet):
+        self.total += 1
+        protocol = self.protocol(packet)
         self.protocols[protocol] += 1
-        timestamp = datetime.now().strftime("%H:%M:%S")
-
-        print("\n" + "-" * 72)
-        print(f" PACKET #{self.total_packets:<6} | {timestamp} | {protocol}")
-        print("-" * 72)
-        print(f" Size         : {len(packet)} bytes")
+        print(f"\n[{self.total}] {datetime.now():%H:%M:%S} | {protocol} | {len(packet)} bytes")
 
         if packet.haslayer(Ether):
-            print(f" Source MAC   : {safe_terminal_text(packet[Ether].src)}")
-            print(f" Dest MAC     : {safe_terminal_text(packet[Ether].dst)}")
+            print(f"MAC: {safe_terminal_text(packet[Ether].src)} -> "
+                  f"{safe_terminal_text(packet[Ether].dst)}")
 
         if packet.haslayer(IP):
-            src = str(packet[IP].src)
-            dst = str(packet[IP].dst)
-            increment_bounded(self.sources, src, MAX_TRACKED_ADDRESSES)
-            increment_bounded(self.destinations, dst, MAX_TRACKED_ADDRESSES)
-            print(f" Source IP    : {safe_terminal_text(src)}")
-            print(f" Dest IP      : {safe_terminal_text(dst)}")
-            print(f" TTL          : {int(packet[IP].ttl)}")
+            src, dst = packet[IP].src, packet[IP].dst
+            increment_bounded(self.sources, src, MAX_TRACKED)
+            increment_bounded(self.destinations, dst, MAX_TRACKED)
+            print(f"IP: {src} -> {dst} | TTL: {packet[IP].ttl}")
         elif packet.haslayer(ARP):
-            src = str(packet[ARP].psrc)
-            dst = str(packet[ARP].pdst)
-            increment_bounded(self.sources, src, MAX_TRACKED_ADDRESSES)
-            increment_bounded(self.destinations, dst, MAX_TRACKED_ADDRESSES)
-            print(f" ARP Sender   : {safe_terminal_text(src)}")
-            print(f" ARP Target   : {safe_terminal_text(dst)}")
+            src, dst = packet[ARP].psrc, packet[ARP].pdst
+            increment_bounded(self.sources, src, MAX_TRACKED)
+            increment_bounded(self.destinations, dst, MAX_TRACKED)
+            print(f"ARP: {src} -> {dst}")
 
         if packet.haslayer(TCP):
-            tcp = packet[TCP]
-            print(f" Transport    : TCP {int(tcp.sport)} -> {int(tcp.dport)}")
-            print(f" TCP Flags    : {safe_terminal_text(tcp.flags, 16)}")
+            layer = packet[TCP]
+            print(f"TCP: {layer.sport} -> {layer.dport} | Flags: {layer.flags}")
         elif packet.haslayer(UDP):
-            udp = packet[UDP]
-            print(f" Transport    : UDP {int(udp.sport)} -> {int(udp.dport)}")
+            layer = packet[UDP]
+            print(f"UDP: {layer.sport} -> {layer.dport}")
 
         if packet.haslayer(ICMP):
-            print(f" ICMP Type    : {int(packet[ICMP].type)}")
-            print(f" ICMP Code    : {int(packet[ICMP].code)}")
-
+            print(f"ICMP: type={packet[ICMP].type}, code={packet[ICMP].code}")
         if packet.haslayer(DNSQR):
             query = packet[DNSQR].qname
             if isinstance(query, bytes):
                 query = query.decode("utf-8", errors="replace")
-            print(f" DNS Query    : {safe_terminal_text(str(query).rstrip('.'))}")
+            print(f"DNS Query: {safe_terminal_text(query)}")
 
-    def show_statistics(self) -> None:
-        print("\n" + "=" * 72)
-        print("                         CAPTURE SUMMARY")
-        print("=" * 72)
-        print(f" Total packets: {self.total_packets}")
-        print("\n Protocol distribution:")
-        if self.protocols:
-            for name, count in self.protocols.most_common():
-                print(f"   {name:<12} {count}")
-        else:
-            print("   No packets captured.")
+    def summary(self):
+        print("\n" + "=" * 55)
+        print(f"CAPTURE SUMMARY | Total packets: {self.total}")
+        for name, count in self.protocols.most_common():
+            print(f"{name:<10} {count}")
+        print("Top sources:", self.sources.most_common(5))
+        print("Top destinations:", self.destinations.most_common(5))
+        print("=" * 55)
 
-        print("\n Top source addresses:")
-        for address, count in self.sources.most_common(5):
-            print(f"   {safe_terminal_text(address):<24} {count}")
-
-        print("\n Top destination addresses:")
-        for address, count in self.destinations.most_common(5):
-            print(f"   {safe_terminal_text(address):<24} {count}")
-        print("=" * 72)
-
-    def run(self) -> None:
-        self.banner()
-        print(f" Interface    : {safe_terminal_text(self.interface or 'default')}")
-        print(f" BPF filter   : {safe_terminal_text(self.capture_filter or 'none')}")
-        print(f" Packet limit : {self.packet_limit}")
-        print(f" Time limit   : {self.capture_duration} seconds")
-        print("\nCapture only traffic you are authorized to inspect.")
-        print("Press Ctrl+C to stop.\n")
-
+    def run(self):
+        print("\nNETWORK PACKET ANALYZER - Python + Scapy")
+        print(f"Interface: {self.interface or 'Default'}")
+        print(f"Filter: {self.capture_filter or 'None'}")
+        print(f"Stops at: {self.packet_limit} packets OR {self.duration} seconds")
+        print("Use only authorized networks. Press Ctrl+C to stop early.\n")
         try:
-            sniff(
-                iface=self.interface,
-                filter=self.capture_filter,
-                prn=self.handle_packet,
-                store=False,
-                count=self.packet_limit,
-                timeout=self.capture_duration,
-            )
-            print("\nCapture finished (packet limit or time limit reached).")
-        except PermissionError:
-            print("\nPermission denied. Use an approved capture account or privilege.")
-        except OSError as exc:
-            print(f"\nCapture error: {safe_terminal_text(exc)}")
-            print("Verify Npcap/libpcap, interface name, and capture permissions.")
+            sniff(iface=self.interface, filter=self.capture_filter,
+                  prn=self.show_packet, store=False,
+                  count=self.packet_limit, timeout=self.duration)
+            print("\nCapture completed: packet or time limit reached.")
         except KeyboardInterrupt:
             print("\nCapture stopped by user.")
+        except PermissionError:
+            print("\nPermission denied. Check approved capture permissions.")
+        except OSError as exc:
+            print(f"\nCapture error: {safe_terminal_text(exc)}")
+            print("Check Npcap/libpcap and the interface name.")
         finally:
-            self.show_statistics()
+            self.summary()
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description=(
-            "Monitor packets on a network you own or are authorized to inspect."
-        )
-    )
-    parser.add_argument("-i", "--interface", help="Network interface name (optional)")
-    parser.add_argument(
-        "-f",
-        "--filter",
-        dest="capture_filter",
-        help='BPF capture filter, e.g. "tcp" or "port 53" (max 256 chars)',
-    )
-    parser.add_argument(
-        "-c",
-        "--count",
-        type=int,
-        default=DEFAULT_PACKET_LIMIT,
-        help=(
-            f"Stop after this many packets (default {DEFAULT_PACKET_LIMIT}; "
-            "must be greater than zero)"
-        ),
-    )
-    parser.add_argument(
-        "--duration",
-        type=int,
-        default=DEFAULT_CAPTURE_DURATION,
-        help=(
-            f"Stop after this many seconds (default {DEFAULT_CAPTURE_DURATION}; "
-            f"maximum {MAX_CAPTURE_DURATION})"
-        ),
-    )
+def main():
+    parser = argparse.ArgumentParser(description="Authorized packet analyzer")
+    parser.add_argument("-i", "--interface", help="Network interface name")
+    parser.add_argument("-f", "--filter", dest="capture_filter",
+                        help='BPF filter, for example "tcp" or "port 53"')
+    parser.add_argument("-c", "--count", type=int, default=DEFAULT_COUNT,
+                        help=f"Packet limit (default {DEFAULT_COUNT})")
+    parser.add_argument("--duration", type=int, default=DEFAULT_SECONDS,
+                        help=f"Time limit in seconds (default {DEFAULT_SECONDS})")
     args = parser.parse_args()
-    if args.count <= 0:
-        parser.error("--count must be a positive integer; zero is not allowed")
-    if not 1 <= args.duration <= MAX_CAPTURE_DURATION:
-        parser.error(f"--duration must be between 1 and {MAX_CAPTURE_DURATION} seconds")
-    if args.capture_filter is not None and len(args.capture_filter) > 256:
+    if args.count < 1:
+        parser.error("--count must be greater than zero")
+    if not 1 <= args.duration <= MAX_SECONDS:
+        parser.error(f"--duration must be 1-{MAX_SECONDS} seconds")
+    if args.capture_filter and len(args.capture_filter) > 256:
         parser.error("--filter must be 256 characters or fewer")
-    return args
-
-
-def main() -> None:
-    args = parse_args()
-    PacketAnalyzer(
-        args.interface, args.capture_filter, args.count, args.duration
-    ).run()
+    PacketAnalyzer(args.interface, args.capture_filter,
+                   args.count, args.duration).run()
 
 
 if __name__ == "__main__":
