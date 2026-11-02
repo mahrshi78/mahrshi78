@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An interactive phishing awareness training module covering suspicious emails, fake login pages, fraudulent websites, social engineering, and practical safety steps.">
+  <title>Phishing Awareness | CodSoft Cyber Security Task 2</title>
+  <style>
+    :root {
+      --navy: #10213d;
+      --blue: #2457d6;
+      --cyan: #dff5fb;
+      --ink: #17243b;
+      --muted: #607089;
+      --paper: #f5f8fc;
+      --white: #fff;
+      --line: #dce5f0;
+      --red: #b42335;
+      --green: #087a55;
+      --shadow: 0 16px 42px rgba(16, 33, 61, .08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--paper); color: var(--ink);
+      font: 16px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    a { color: var(--blue); }
+    .topbar {
+      background: rgba(255,255,255,.94); border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px);
+    }
+    .nav {
+      max-width: 1120px; margin: auto; padding: 13px 22px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .brand { font-weight: 850; letter-spacing: .02em; color: var(--navy); }
+    .brand span { color: var(--blue); }
+    .navlinks { display: flex; flex-wrap: wrap; gap: 14px; }
+    .navlinks a { color: var(--muted); font-size: .88rem; font-weight: 650; text-decoration: none; }
+    .navlinks a:hover { color: var(--blue); }
+    .wrap { max-width: 1120px; margin: auto; padding: 0 22px; }
+    .hero {
+      padding: 76px 0 62px; color: white;
+      background: radial-gradient(circle at 80% 15%, rgba(59,130,246,.38), transparent 30%),
+                  linear-gradient(125deg, #0c1c35, #173e78 66%, #2362b8);
+    }
+    .eyebrow { text-transform: uppercase; letter-spacing: .16em; font-size: .75rem; font-weight: 800; color: #a9d6ff; }
+    h1 { max-width: 770px; margin: 12px 0; font-size: clamp(2.5rem, 6vw, 4.8rem); line-height: 1.04; letter-spacing: -.04em; }
+    .hero p { max-width: 700px; color: #d9e7f8; font-size: 1.1rem; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:26px; }
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center; border:0;
+      padding:12px 18px; border-radius:12px; background:var(--blue); color:white;
+      font:inherit; font-weight:750; text-decoration:none; cursor:pointer;
+    }
+    .btn.light { background:white; color:var(--navy); }
+    .btn.outline { background:transparent; color:var(--blue); border:1px solid var(--line); }
+    main { padding: 38px 0 70px; }
+    section { scroll-margin-top: 84px; margin: 28px 0 44px; }
+    .section-head { margin-bottom: 20px; }
+    .section-head .eyebrow { color: var(--blue); }
+    h2 { margin: 4px 0 8px; font-size: clamp(1.7rem, 4vw, 2.5rem); line-height:1.15; color:var(--navy); letter-spacing:-.025em; }
+    h3 { color: var(--navy); margin: 0 0 8px; font-size: 1.1rem; }
+    .lead { margin:0; color:var(--muted); max-width:780px; }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
+    .card {
+      grid-column:span 4; background:white; border:1px solid var(--line);
+      border-radius:18px; padding:22px; box-shadow:var(--shadow);
+    }
+    .card.wide { grid-column:span 6; }
+    .card.full { grid-column:span 12; }
+    .icon {
+      width:42px; height:42px; display:grid; place-items:center; border-radius:13px;
+      background:#eaf1ff; color:var(--blue); font-size:1.25rem; margin-bottom:14px;
+    }
+    .card p { color:var(--muted); margin:6px 0 0; }
+    .list { margin:12px 0 0; padding-left:20px; }
+    .list li { margin:7px 0; }
+    .flag { display:inline-block; background:#fff0f1; color:var(--red); border-radius:7px; padding:2px 8px; font-size:.78rem; font-weight:800; margin:3px 4px 3px 0; }
+    .good { background:#e7f7f0; color:var(--green); }
+    .mail {
+      border:1px solid var(--line); border-radius:15px; overflow:hidden; background:white;
+    }
+    .mailbar { background:#f0f4fa; padding:12px 16px; color:var(--muted); font-size:.88rem; }
+    .mailbody { padding:18px; }
+    .mailbody p { margin:7px 0; }
+    .warning { padding:14px 16px; border-left:4px solid #e2a52b; background:#fff8e7; border-radius:9px; color:#644a16; margin-top:14px; }
+    .browser {
+      max-width:760px; margin:12px auto 0; background:#fff; border:1px solid #cbd7e7;
+      border-radius:14px; overflow:hidden; box-shadow:var(--shadow);
+    }
+    .browser-top { background:#eaf0f8; padding:11px 14px; display:flex; gap:8px; align-items:center; }
+    .dot { width:9px; height:9px; border-radius:50%; background:#9baac0; }
+    .address { margin-left:8px; background:white; border:1px solid var(--line); color:#8b2635; padding:5px 10px; border-radius:7px; font-size:.83rem; flex:1; overflow-wrap:anywhere; }
+    .login-demo { max-width:420px; margin:25px auto; border:1px solid var(--line); border-radius:13px; padding:24px; text-align:center; }
+    .fake-input { border:1px solid #cbd5e1; border-radius:8px; padding:11px; margin:10px 0; color:#8793a5; text-align:left; background:#f9fbfd; }
+    .fake-submit { background:#9aa8bb; color:white; border-radius:8px; padding:10px; font-weight:800; }
+    .case-number { color:var(--blue); font-weight:850; font-size:.8rem; letter-spacing:.1em; }
+    .steps { counter-reset:step; display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .step { background:white; border:1px solid var(--line); border-radius:15px; padding:18px; }
+    .step:before { counter-increment:step; content:counter(step, decimal-leading-zero); display:block; color:var(--blue); font-weight:900; font-size:1.35rem; margin-bottom:9px; }
+    .quiz { background:#10213d; color:white; border-radius:22px; padding:28px; }
+    .quiz h2 { color:white; }
+    .quiz .lead { color:#c4d3e8; }
+    .question { background:#fff; color:var(--ink); border-radius:14px; padding:18px; margin:15px 0; }
+    .question p { margin:0 0 10px; font-weight:800; }
+    .option { display:block; padding:7px 4px; color:#42516a; cursor:pointer; }
+    .option input { margin-right:8px; }
+    #quiz-result { margin-top:16px; font-weight:800; }
+    footer { background:#0c1c35; color:#c5d5e9; padding:28px 0; }
+    footer strong { color:white; }
+    .small { font-size:.86rem; color:var(--muted); }
+    @media (max-width:800px) {
+      .card { grid-column:span 6; }
+      .steps { grid-template-columns:repeat(2,1fr); }
+      .nav { align-items:flex-start; flex-direction:column; }
+    }
+    @media (max-width:560px) {
+      .card, .card.wide { grid-column:span 12; }
+      .steps { grid-template-columns:1fr; }
+      .hero { padding:54px 0 46px; }
+      .navlinks { gap:10px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="Main navigation">
+      <div class="brand">CYBER<span>WISE</span> / CODSOFT</div>
+      <div class="navlinks">
+        <a href="#email">Emails</a>
+        <a href="#websites">Websites</a>
+        <a href="#social">Social Engineering</a>
+        <a href="#safety">Safety</a>
+        <a href="#quiz">Quiz</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="wrap">
+      <div class="eyebrow">CodSoft Cyber Security Internship · Task 2</div>
+      <h1>Pause. Inspect.<br>Protect yourself from phishing.</h1>
+      <p>Learn how to spot suspicious messages, deceptive login pages, and fraudulent websites. Practice safer decisions with practical examples and a short knowledge check.</p>
+      <div class="hero-actions">
+        <a class="btn light" href="#email">Start learning</a>
+        <a class="btn" href="#quiz">Take the quiz</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section id="email">
+      <div class="section-head">
+        <div class="eyebrow">01 / Email awareness</div>
+        <h2>How to identify a suspicious email</h2>
+        <p class="lead">Phishing messages try to make you act before you think. Check the sender, the message, and the destination before clicking or replying.</p>
+      </div>
+      <div class="grid">
+        <article class="card wide">
+          <div class="icon">✉</div>
+          <h3>Example: a suspicious delivery message</h3>
+          <div class="mail">
+            <div class="mailbar">From: Delivery Support &lt;helpdesk@delivery-update.example&gt;</div>
+            <div class="mailbody">
+              <p><strong>Subject: Urgent — parcel on hold</strong></p>
+              <p>Your parcel cannot be delivered. Pay a small re-delivery fee within 2 hours or your parcel will be returned.</p>
+              <p><span class="flag">Urgency</span><span class="flag">Unexpected payment</span><span class="flag">Unfamiliar sender</span></p>
+              <p><u>Review delivery details</u></p>
+            </div>
+          </div>
+          <div class="warning"><strong>Training example:</strong> This is a fictional message using the reserved .example domain. Do not visit a link or provide payment details from an unexpected message.</div>
+        </article>
+        <article class="card wide">
+          <div class="icon">⚑</div>
+          <h3>Common warning signs</h3>
+          <ul class="list">
+            <li>Sender address does not match the organization.</li>
+            <li>Unexpected urgency, threats, or too-good-to-be-true rewards.</li>
+            <li>Requests for passwords, one-time codes, or payment details.</li>
+            <li>Unexpected attachments or links.</li>
+            <li>Generic greetings, unusual wording, or spelling mistakes.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="websites">
+      <div class="section-head">
+        <div class="eyebrow">02 / Website awareness</div>
+        <h2>Fake login pages and fraudulent websites</h2>
+        <p class="lead">A page can look professional and still be fake. Check the complete domain name and reach important services through a trusted bookmark or by typing their known address yourself.</p>
+      </div>
+      <div class="browser">
+        <div class="browser-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="address">https://account-check.example-login.invalid</div></div>
+        <div class="login-demo">
+          <div class="icon" style="margin:0 auto 12px;">▣</div>
+          <h3>Account verification</h3>
+          <p class="small">Illustrative login-page warning example</p>
+          <div class="fake-input">Email or username</div>
+          <div class="fake-input">Password</div>
+          <div class="fake-submit">Sign in (demo only)</div>
+          <p class="small">No credentials are collected by this training illustration.</p>
+        </div>
+      </div>
+      <div class="grid" style="margin-top:16px">
+        <article class="card">
+          <h3>Inspect the domain</h3>
+          <p>Look for misspellings, extra words, unusual subdomains, or a domain that does not belong to the claimed organization.</p>
+        </article>
+        <article class="card">
+          <h3>HTTPS is not proof</h3>
+          <p>A padlock indicates an encrypted connection. It does not prove that the website itself is genuine or trustworthy.</p>
+        </article>
+        <article class="card">
+          <h3>Avoid login links in messages</h3>
+          <p>Open the official app or type the known website address yourself instead of using an unexpected email or SMS link.</p>
+        </article>
+      </div>
+      <p class="small">The domain shown above ends in .invalid and is only a non-functional training illustration. Never enter real credentials into a demonstration page.</p>
+    </section>
+
+    <section id="social">
+      <div class="section-head">
+        <div class="eyebrow">03 / Human manipulation</div>
+        <h2>Common social engineering techniques</h2>
+        <p class="lead">Attackers often manipulate emotions and trust rather than exploiting software.</p>
+      </div>
+      <div class="grid">
+        <article class="card"><div class="icon">⏱</div><h3>Urgency and fear</h3><p>“Your account will be closed in 10 minutes.” The attacker wants you to skip verification.</p></article>
+        <article class="card"><div class="icon">♙</div><h3>Impersonation</h3><p>Someone pretends to be a manager, bank employee, support agent, or trusted contact.</p></article>
+        <article class="card"><div class="icon">🎁</div><h3>Reward or curiosity</h3><p>A prize, refund, job offer, or surprising attachment is used to trigger a quick click.</p></article>
+        <article class="card"><div class="icon">🔐</div><h3>Credential harvesting</h3><p>A fake sign-in page asks for passwords, one-time codes, or account recovery details.</p></article>
+        <article class="card"><div class="icon">🤝</div><h3>Trust building</h3><p>A scammer may use familiar names, copied logos, or information gathered from public profiles.</p></article>
+        <article class="card"><div class="icon">📞</div><h3>Pressure by phone</h3><p>A caller claims to be support and asks you to install remote-access software or share a code.</p></article>
+      </div>
+    </section>
+
+    <section id="cases">
+      <div class="section-head">
+        <div class="eyebrow">04 / Practice scenarios</div>
+        <h2>Case studies and real-life style examples</h2>
+        <p class="lead">These fictional scenarios are designed for practice. They do not represent a real company or incident.</p>
+      </div>
+      <div class="grid">
+        <article class="card wide">
+          <div class="case-number">CASE 01</div>
+          <h3>Parcel re-delivery fee</h3>
+          <p>A message says a parcel is on hold and demands a small fee through an unfamiliar link within two hours.</p>
+          <p><strong>Red flags:</strong> unexpected fee, urgent deadline, unknown sender, and a link that does not match a verified delivery service.</p>
+          <p><strong>Safer action:</strong> check the order in the official delivery app or website. Do not use the message link.</p>
+        </article>
+        <article class="card wide">
+          <div class="case-number">CASE 02</div>
+          <h3>Unexpected recruitment task</h3>
+          <p>A recruiter sends an attachment and asks the candidate to sign in with an email password to view an interview schedule.</p>
+          <p><strong>Red flags:</strong> unexpected sign-in request, pressure to act quickly, and a request unrelated to normal recruitment.</p>
+          <p><strong>Safer action:</strong> verify the recruiter through an independently found company contact and never share an email password or one-time code.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="safety">
+      <div class="section-head">
+        <div class="eyebrow">05 / Practical protection</div>
+        <h2>What to do before you click</h2>
+        <p class="lead">Use this quick routine whenever a message asks you to sign in, pay, download, or share information.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><h3>Pause</h3><p>Do not react to threats, prizes, or urgent deadlines.</p></div>
+        <div class="step"><h3>Inspect</h3><p>Check the sender, full link destination, spelling, and unexpected requests.</p></div>
+        <div class="step"><h3>Verify</h3><p>Contact the organization using a trusted app, bookmark, or known phone number.</p></div>
+        <div class="step"><h3>Report</h3><p>Use your organization's reporting channel and delete or block the message.</p></div>
+      </div>
+      <div class="grid" style="margin-top:16px">
+        <article class="card full">
+          <h3>Good security habits</h3>
+          <p><span class="flag good">Use MFA</span><span class="flag good">Unique passwords</span><span class="flag good">Password manager</span><span class="flag good">Update devices</span><span class="flag good">Report suspicious messages</span></p>
+          <ul class="list">
+            <li>Use a password manager and a unique password for every important account.</li>
+            <li>Enable multi-factor authentication (MFA), preferably using a passkey or authenticator app where available.</li>
+            <li>Never share one-time passcodes, recovery codes, or passwords with a caller or message sender.</li>
+            <li>Keep your browser, operating system, and security software updated.</li>
+            <li>If you already clicked or entered details, change the affected password through the official site, revoke suspicious sessions where possible, contact the service provider, and report the incident promptly.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="quiz">
+      <div class="quiz">
+        <div class="eyebrow">06 / Knowledge check</div>
+        <h2>Test your phishing awareness</h2>
+        <p class="lead">Choose one answer for each question, then submit to see your score.</p>
+        <form id="quiz-form">
+          <div class="question">
+            <p>1. An unexpected message says your account will close in 10 minutes. What should you do first?</p>
+            <label class="option"><input type="radio" name="q1" value="a"> Click immediately to avoid closure</label>
+            <label class="option"><input type="radio" name="q1" value="b"> Pause and verify through the official app or website</label>
+            <label class="option"><input type="radio" name="q1" value="c"> Reply with your password</label>
+          </div>
+          <div class="question">
+            <p>2. Does the HTTPS padlock prove a website is genuine?</p>
+            <label class="option"><input type="radio" name="q2" value="a"> Yes, always</label>
+            <label class="option"><input type="radio" name="q2" value="b"> Only on mobile devices</label>
+            <label class="option"><input type="radio" name="q2" value="c"> No, it only indicates an encrypted connection</label>
+          </div>
+          <div class="question">
+            <p>3. A caller asks for your one-time password to “secure” your account. What is safest?</p>
+            <label class="option"><input type="radio" name="q3" value="a"> Share it if the caller knows your name</label>
+            <label class="option"><input type="radio" name="q3" value="b"> Never share it; end the call and verify independently</label>
+            <label class="option"><input type="radio" name="q3" value="c"> Send it by email instead</label>
+          </div>
+          <div class="question">
+            <p>4. What is the safest way to access your bank account after receiving an unexpected email?</p>
+            <label class="option"><input type="radio" name="q4" value="a"> Use the email link</label>
+            <label class="option"><input type="radio" name="q4" value="b"> Search for a sponsored result and sign in</label>
+            <label class="option"><input type="radio" name="q4" value="c"> Use the official app or a trusted bookmark</label>
+          </div>
+          <div class="question">
+            <p>5. Which is a common social engineering technique?</p>
+            <label class="option"><input type="radio" name="q5" value="a"> Creating urgency or impersonating a trusted person</label>
+            <label class="option"><input type="radio" name="q5" value="b"> Installing operating system updates</label>
+            <label class="option"><input type="radio" name="q5" value="c"> Using a password manager</label>
+          </div>
+          <div class="question">
+            <p>6. You entered your password on a suspicious page. What should you do?</p>
+            <label class="option"><input type="radio" name="q6" value="a"> Wait and see what happens</label>
+            <label class="option"><input type="radio" name="q6" value="b"> Change it through the official site, secure sessions, and report it</label>
+            <label class="option"><input type="radio" name="q6" value="c"> Send the same password to support</label>
+          </div>
+          <button class="btn light" type="submit">Submit answers</button>
+          <button class="btn outline" type="reset">Try again</button>
+          <div id="quiz-result" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </section>
+
+    <p class="small">Educational content only. This module does not collect credentials, send messages, or connect to any login service. All examples and demonstration domains are fictional.</p>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <strong>CodSoft Cyber Security Internship · Task 2</strong>
+      <div>Phishing Awareness Program | Developed for cybersecurity education</div>
+    </div>
+  </footer>
+  <script>
+    const answers = { q1: "b", q2: "c", q3: "b", q4: "c", q5: "a", q6: "b" };
+    const form = document.getElementById("quiz-form");
+    const result = document.getElementById("quiz-result");
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      let score = 0;
+      const total = Object.keys(answers).length;
+      for (const [question, answer] of Object.entries(answers)) {
+        const selected = form.querySelector('input[name="' + question + '"]:checked');
+        if (selected && selected.value === answer) score += 1;
+      }
+      let message = "Keep learning: review the sections above and try again.";
+      if (score === total) message = "Excellent! You got every answer correct.";
+      else if (score >= 4) message = "Good work! Review the missed topics to strengthen your awareness.";
+      result.textContent = "Your score: " + score + " / " + total + ". " + message;
+    });
+
+    form.addEventListener("reset", function () {
+      result.textContent = "";
+    });
+  </script>
+</body>
+</html>
