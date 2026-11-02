@@ -8,7 +8,7 @@ A Python-based command-line network packet analyzer built with **Scapy** for aut
 - Identifies ARP, DNS, TCP, UDP, ICMP, and IP traffic.
 - Displays source/destination IP and MAC metadata, packet size, TTL, transport ports, flags, and DNS query names when available.
 - Provides a protocol distribution and top source/destination summary.
-- Defaults to a finite capture of 1,000 packets.
+- Stops after 1,000 packets or 30 seconds by default, whichever comes first.
 - Sanitizes packet-derived terminal text and bounds tracked address counters.
 
 ## Project structure
@@ -56,26 +56,28 @@ python "Task - 1/source-code/packet_analyzer.py" --help
 Capture up to 100 packets:
 
 ```powershell
-python "Task - 1/source-code/packet_analyzer.py" --count 100
+python "Task - 1/source-code/packet_analyzer.py" --count 100 --duration 30
 ```
 
 Capture TCP packets only:
 
 ```powershell
-python "Task - 1/source-code/packet_analyzer.py" --filter "tcp" --count 100
+python "Task - 1/source-code/packet_analyzer.py" --filter "tcp" --count 100 --duration 20
 ```
 
 Capture DNS traffic:
 
 ```powershell
-python "Task - 1/source-code/packet_analyzer.py" --filter "port 53" --count 50
+python "Task - 1/source-code/packet_analyzer.py" --filter "port 53" --count 50 --duration 15
 ```
 
 To select an interface:
 
 ```powershell
-python "Task - 1/source-code/packet_analyzer.py" --interface "Wi-Fi" --count 100
+python "Task - 1/source-code/packet_analyzer.py" --interface "Wi-Fi" --count 100 --duration 30
 ```
+
+The capture stops when either the packet limit or the time limit is reached. The default time limit is 30 seconds; use `--duration 1` through `--duration 3600` to change it. `--count 0` is rejected to prevent accidental unlimited capture. Press `Ctrl+C` to stop manually.
 
 ## Tests and static analysis
 
