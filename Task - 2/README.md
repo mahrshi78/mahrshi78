@@ -1,15 +1,57 @@
 # Task - 2: Phishing Awareness Program
 
-Create an educational presentation or web-based training module about phishing attacks.
+An interactive, browser-based cybersecurity awareness module created for the CodSoft Cyber Security Internship.
 
-## Task requirements
-- Explain how to identify suspicious emails, fake login pages, and fraudulent websites.
-- Describe common social engineering techniques.
-- Share practical tips to avoid phishing attempts.
-- Include case studies, real-life examples, and short quizzes.
+## Learning objectives
 
-## Add to this folder
-- Training module source files or presentation
-- Screenshots
-- Project documentation
+This module helps learners:
+- Identify suspicious emails and common warning signs.
+- Recognize fake login pages and fraudulent website domains.
+- Understand social engineering techniques such as urgency, impersonation, fear, and reward-based lures.
+- Apply practical steps to avoid phishing and respond safely.
+- Review fictional scenarios and test their knowledge with an interactive quiz.
+
+## Project structure
+
+```text
+Task - 2/
+├── index.html
+├── screenshots/
+│   └── README.md
+└── README.md
+```
+
+## Run locally
+
+No server, database, package installation, or external library is required.
+
+1. Download or clone this repository.
+2. Open the `Task - 2` folder.
+3. Double-click `index.html`, or open it with a browser.
+4. Navigate through the lessons and submit the six-question quiz.
+
+## Features
+
+- Responsive page for desktop and mobile.
+- Suspicious email example with highlighted red flags.
+- Non-functional fake login page illustration using a reserved `.invalid` domain.
+- Social engineering technique explanations.
+- Two fictional case studies.
+- Practical phishing prevention checklist.
+- Six-question interactive quiz with score feedback.
+- No credential collection, tracking, backend, or external dependencies.
+
+## Screenshots and demo evidence
+
+Place screenshots of the module and quiz results in the `screenshots/` folder. Mask any personal information before publishing.
+
+## Safety note
+
+All message, website, and case-study examples are fictional training illustrations. The sample login form is non-functional and does not collect credentials. Do not enter real passwords, one-time codes, or payment details into suspicious pages.
+
+## Internship
+
+**Organization:** CodSoft  
+**Domain:** Cyber Security  
+**Task:** 2 – Phishing Awareness Program
 
