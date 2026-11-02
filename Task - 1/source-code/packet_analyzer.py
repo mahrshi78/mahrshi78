@@ -25,6 +25,8 @@ except ImportError:
 MAX_TRACKED_ADDRESSES = 2048
 MAX_DISPLAY_TEXT = 120
 DEFAULT_PACKET_LIMIT = 1000
+DEFAULT_CAPTURE_DURATION = 30
+MAX_CAPTURE_DURATION = 3600
 OTHER_ADDRESS_BUCKET = "<other addresses>"
 
 
@@ -55,15 +57,21 @@ class PacketAnalyzer:
         interface: str | None = None,
         capture_filter: str | None = None,
         packet_limit: int = DEFAULT_PACKET_LIMIT,
+        capture_duration: int = DEFAULT_CAPTURE_DURATION,
     ) -> None:
-        if packet_limit < 0:
-            raise ValueError("packet_limit must be zero or a positive integer")
+        if packet_limit <= 0:
+            raise ValueError("packet_limit must be a positive integer")
+        if not 1 <= capture_duration <= MAX_CAPTURE_DURATION:
+            raise ValueError(
+                f"capture_duration must be between 1 and {MAX_CAPTURE_DURATION} seconds"
+            )
         if capture_filter is not None and len(capture_filter) > 256:
             raise ValueError("capture filter must be 256 characters or fewer")
 
         self.interface = interface
         self.capture_filter = capture_filter
         self.packet_limit = packet_limit
+        self.capture_duration = capture_duration
         self.total_packets = 0
         self.protocols: Counter[str] = Counter()
         self.sources: Counter[str] = Counter()
@@ -171,8 +179,8 @@ class PacketAnalyzer:
         self.banner()
         print(f" Interface    : {safe_terminal_text(self.interface or 'default')}")
         print(f" BPF filter   : {safe_terminal_text(self.capture_filter or 'none')}")
-        limit_text = self.packet_limit or "unlimited (explicitly requested)"
-        print(f" Packet limit : {limit_text}")
+        print(f" Packet limit : {self.packet_limit}")
+        print(f" Time limit   : {self.capture_duration} seconds")
         print("\nCapture only traffic you are authorized to inspect.")
         print("Press Ctrl+C to stop.\n")
 
@@ -183,7 +191,9 @@ class PacketAnalyzer:
                 prn=self.handle_packet,
                 store=False,
                 count=self.packet_limit,
+                timeout=self.capture_duration,
             )
+            print("\nCapture finished (packet limit or time limit reached).")
         except PermissionError:
             print("\nPermission denied. Use an approved capture account or privilege.")
         except OSError as exc:
@@ -215,12 +225,23 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_PACKET_LIMIT,
         help=(
             f"Stop after this many packets (default {DEFAULT_PACKET_LIMIT}; "
-            "0 means unlimited)"
+            "must be greater than zero)"
+        ),
+    )
+    parser.add_argument(
+        "--duration",
+        type=int,
+        default=DEFAULT_CAPTURE_DURATION,
+        help=(
+            f"Stop after this many seconds (default {DEFAULT_CAPTURE_DURATION}; "
+            f"maximum {MAX_CAPTURE_DURATION})"
         ),
     )
     args = parser.parse_args()
-    if args.count < 0:
-        parser.error("--count must be zero or a positive integer")
+    if args.count <= 0:
+        parser.error("--count must be a positive integer; zero is not allowed")
+    if not 1 <= args.duration <= MAX_CAPTURE_DURATION:
+        parser.error(f"--duration must be between 1 and {MAX_CAPTURE_DURATION} seconds")
     if args.capture_filter is not None and len(args.capture_filter) > 256:
         parser.error("--filter must be 256 characters or fewer")
     return args
@@ -228,7 +249,9 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    PacketAnalyzer(args.interface, args.capture_filter, args.count).run()
+    PacketAnalyzer(
+        args.interface, args.capture_filter, args.count, args.duration
+    ).run()
 
 
 if __name__ == "__main__":
