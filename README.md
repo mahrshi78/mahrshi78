@@ -1,6 +1,6 @@
 # CodSoft Cyber Security Internship Tasks
 
-This repository contains the five tasks listed in the CodSoft Cyber Security Internship task document.
+This repository organizes the five projects listed in the CodSoft Cyber Security Internship task document.
 
 ## Tasks
 
@@ -12,11 +12,19 @@ This repository contains the five tasks listed in the CodSoft Cyber Security Int
 | 4 | Network Intrusion Detection System | [Task - 4](./Task%20-%204/) |
 | 5 | Secure File Sharing System | [Task - 5](./Task%20-%205/) |
 
-Each task folder contains its own README. Add the relevant source code, screenshots, test evidence, and documentation to the corresponding folder.
+Each task has its own folder for source code, screenshots, reports, tests, and documentation.
 
 ## Internship
 
 **Organization:** CodSoft  
 **Domain:** Cyber Security
+
+## Progress
+
+- [x] Task 1 – Network Packet Analyzer files added.
+- [ ] Task 2 – Phishing Awareness Program files to be added.
+- [ ] Task 3 – Secure Code Assessment files to be added.
+- [ ] Task 4 – Network Intrusion Detection System files to be added.
+- [ ] Task 5 – Secure File Sharing System files to be added.
 
 > Use these projects only in authorized lab environments and on systems or networks for which you have permission.
