@@ -6,9 +6,9 @@
 
 ## Executive summary
 
-The reviewed application is a small command-line packet monitor using Scapy. No credential storage, web server, database, or shell execution was identified in the reviewed source. The main risks were local resource exhaustion from unbounded address counters, terminal control-sequence injection through packet-derived DNS text, and unlimited capture by default.
+The reviewed application is a small command-line packet monitor using Scapy. No credential storage, web server, database, or shell execution was identified in the reviewed source. The main risks were local resource exhaustion from unbounded address counters, terminal control-sequence injection through packet-derived DNS text, and the absence of a time-based stop for packet capture.
 
-The revised implementation adds terminal-output sanitization, bounded address tracking, a finite default packet count, input validation, safer privilege guidance, and a bounded Scapy dependency range.
+The revised implementation adds terminal-output sanitization, bounded address tracking, a finite default packet count, a 30-second default capture timeout, input validation, safer privilege guidance, and a bounded Scapy dependency range.
 
 ## Findings in the original source
 
@@ -16,7 +16,7 @@ The revised implementation adds terminal-output sanitization, bounded address tr
 |---|---|---|---|
 | SCA-01 | Medium | Unbounded source/destination counters | A capture containing many unique addresses could grow memory use without a fixed bound. |
 | SCA-02 | Medium | Unsanitized packet-derived terminal text | A crafted DNS name containing control characters could manipulate terminal display or mislead an operator. |
-| SCA-03 | Low | Unlimited capture by default | An accidental long-running capture could produce excessive output, resource use, and collection of more metadata than intended. |
+| SCA-03 | Low | No time-based capture stop | When the packet limit is not reached (or unlimited capture is requested), capture can keep running and produce excessive output or collect more metadata than intended. |
 | SCA-04 | Low | Broad administrator-privilege guidance | Running the entire VS Code process elevated increases the impact of mistakes and unrelated extensions. |
 | SCA-05 | Low | Dependency range had no upper major-version bound | A future incompatible Scapy major release could be installed without an intentional review. |
 | SCA-06 | Informational | Sensitive network metadata displayed on screen | IP addresses, MAC addresses, and DNS query names may reveal network activity through screenshots, terminal logs, or shared screens. |
@@ -27,11 +27,11 @@ Severity reflects likely impact in this local educational tool; it is not a form
 
 1. Added `safe_terminal_text()` to replace non-printable characters and cap packet-derived text at 120 characters.
 2. Added `increment_bounded()` and limited source/destination tracking to 2,048 distinct keys each, with additional entries summarized in an overflow bucket.
-3. Changed the default capture count to 1,000 packets. Unlimited capture now requires an explicit `--count 0`.
+3. Limited capture to 1,000 packets or 30 seconds by default, whichever occurs first. Added a configurable `--duration` timeout (1–3,600 seconds) and rejected `--count 0` so capture cannot be made unlimited accidentally.
 4. Updated privilege guidance to recommend the minimum approved capture privilege instead of elevating the whole editor.
 5. Bounded the dependency to `scapy>=2.6.0,<3.0.0`.
 6. Added privacy guidance for IP, MAC, DNS metadata and PCAP files.
-7. Added focused unit tests for sanitization, length limits, bounded counters, and the default packet limit.
+7. Added focused unit tests for sanitization, length limits, bounded counters, finite packet/time defaults, invalid unlimited settings, and Scapy timeout arguments.
 
 ## Verification performed in the original project repository
 
