@@ -3,7 +3,6 @@
 from collections import Counter
 
 import pytest
-
 from packet_analyzer import (
     DEFAULT_CAPTURE_DURATION,
     DEFAULT_PACKET_LIMIT,
