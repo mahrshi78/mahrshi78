@@ -100,6 +100,10 @@ Verified GitHub Actions run on 2 November 2026: [Task 3 Secure Code Checks](http
 
 These results apply to the secure implementation and listed test suite in the cited CI run. Keep screenshots of the run or terminal output in the `screenshots/` folder if separate submission evidence is required.
 
+### Local Windows verification
+
+On 2 November 2026, the project was also run locally in the user's Windows PowerShell environment using the project virtual environment. The displayed pytest output confirmed **7 passed in 0.95s**. Registration and successful/unsuccessful login were also demonstrated locally. A separate screenshot should be retained in `screenshots/` as submission evidence.
+
 ## 6. Residual risks and limitations
 
 - This is a local command-line demonstration, not a web application.
