@@ -84,3 +84,7 @@ This is an offline local educational project. It does not start a network servic
 **Organization:** CodSoft  
 **Domain:** Cyber Security  
 **Task:** 3 – Secure Code Assessment
+
+## Final report PDF
+
+The generated A4 Security Assessment Report is available here: [Task_3_Secure_Code_Assessment_Report.pdf](./reports/Task_3_Secure_Code_Assessment_Report.pdf).
