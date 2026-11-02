@@ -23,7 +23,7 @@ Each task has its own folder for source code, screenshots, reports, tests, and d
 
 - [x] Task 1 – Network Packet Analyzer files added.
 - [x] Task 2 – Phishing Awareness Program module and documentation added.
-- [ ] Task 3 – Secure Code Assessment files to be added.
+- [x] Task 3 – Secure Code Assessment project, findings, remediation, and tests added.
 - [ ] Task 4 – Network Intrusion Detection System files to be added.
 - [ ] Task 5 – Secure File Sharing System files to be added.
 
