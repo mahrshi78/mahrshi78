@@ -50,7 +50,7 @@ class UserStore:
     @staticmethod
     def _validate_password(password: str) -> None:
         if not isinstance(password, str):
-            raise ValueError("Password must be text.")
+            raise TypeError("Password must be text.")
         if not MIN_PASSWORD_LENGTH <= len(password) <= MAX_PASSWORD_LENGTH:
             raise ValueError(
                 f"Password must be {MIN_PASSWORD_LENGTH}-{MAX_PASSWORD_LENGTH} "
