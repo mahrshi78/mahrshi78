@@ -36,11 +36,11 @@ Severity reflects likely impact in this local educational tool; it is not a form
 ## Verification performed in the original project repository
 
 - Python syntax compilation: passed.
-- Focused pytest tests: **4 passed**.
+- Focused pytest tests: **7 passed**.
 - Manual source review: completed.
 - GitHub Actions CI (2 November 2026): **passed**. Ruff lint, Bandit security scan, and pytest all completed successfully on the original repository's main branch.
 - Local host limitation: Bandit/Ruff could not be installed in the local authoring environment because the package index was unreachable; CI provided the verified scanner run.
-- Live packet capture: **not run**. It requires Scapy, Npcap/libpcap, a real interface, and suitable capture permissions. The four helper tests do not capture live network traffic.
+- Live packet capture: **not run**. It requires Scapy, Npcap/libpcap, a real interface, and suitable capture permissions. The seven automated tests cover helper behavior and verify that Scapy receives finite packet/time limits; they do not capture live network traffic.
 
 ## Recommended operational controls
 
