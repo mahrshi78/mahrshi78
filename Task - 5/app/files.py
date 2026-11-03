@@ -284,6 +284,6 @@ def temporary_download(token: str):
         """,
         (token_hash,),
     ).fetchone()
-    if row is None or int(row["expires_at"]) < int(time.time()):
+    if row is None or int(row["expires_at"]) <= int(time.time()):
         abort(404)
     return download_response(row)
