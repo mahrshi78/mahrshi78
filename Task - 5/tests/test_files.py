@@ -1,5 +1,4 @@
 import io
-import sqlite3
 
 from app.db import get_db
 
