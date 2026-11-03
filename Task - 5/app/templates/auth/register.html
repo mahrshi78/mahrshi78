@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Create account · CipherShare{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <p class="eyebrow">PRIVATE FILE EXCHANGE</p>
+  <h1>Create your account</h1>
+  <p class="muted">New accounts receive the standard user role.</p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Username<input name="username" autocomplete="username" minlength="3" maxlength="32" pattern="[A-Za-z0-9_.-]+" required></label>
+    <label>Password <span class="hint">12–128 characters</span><input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+    <button class="primary full" type="submit">Create account</button>
+  </form>
+  <p class="muted center">Already registered? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+</section>
+{% endblock %}
