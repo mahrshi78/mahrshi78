@@ -47,7 +47,7 @@ The Python unit tests cover:
 - Dashboard search/filter controls.
 - Grouping source IPs and creating the response CSV.
 
-GitHub Actions verification on 3 November 2026: [Task 4 NIDS Checks](https://github.com/mahrshi78/mahrshi78/actions/runs/41590007583) completed successfully — **9 tests passed**, Ruff reported **All checks passed**, and both dashboard and response-queue command-line smoke tests completed. These checks validate the Python EVE/dashboard/triage utilities and the presence/shape of the local signatures. They do not execute the Suricata engine. Do not mark Suricata packet inspection or live network monitoring as verified until the engine has been installed, its configuration/rules validated, and it has been run against an authorized PCAP or interface.
+GitHub Actions verification on 3 November 2026: [Task 4 NIDS Checks](https://github.com/mahrshi78/mahrshi78/actions/runs/41598256365) completed successfully — **11 tests passed**, Ruff reported **All checks passed**, dashboard and response-queue smoke tests completed, and the synthetic 122-packet offline PCAP generator ran successfully. These checks validate the Python EVE/dashboard/triage utilities and the presence/shape of the local signatures. They do not execute the Suricata engine. Do not mark Suricata packet inspection or live network monitoring as verified until the engine has been installed, its configuration/rules validated, and it has been run against an authorized PCAP or interface.
 
 ## 6. Limitations
 
