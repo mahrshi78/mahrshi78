@@ -156,7 +156,7 @@ The triage utility creates `response_queue.csv` with source IP, event count, hig
 
 ## Automated checks
 
-GitHub Actions: [Task 4 NIDS Checks — successful](https://github.com/mahrshi78/mahrshi78/actions/runs/41590007583). The workflow verified 9 Python tests and Ruff linting.
+GitHub Actions: [Task 4 NIDS Checks — successful](https://github.com/mahrshi78/mahrshi78/actions/runs/41598256365). The workflow verified 9 Python tests and Ruff linting.
 
 ## Safety and limitations
 
