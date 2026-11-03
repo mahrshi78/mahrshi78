@@ -16,7 +16,7 @@ Configure Suricata to inspect authorized network traffic, apply custom signature
 |---|---|---|
 | 9000001 | Possible TCP SYN port scan | 12 or more inbound SYN packets from one source within 10 seconds |
 | 9000002 | Possible TCP SYN flood | 100 or more inbound SYN packets to a destination within 5 seconds |
-| 9000003 | Possible ICMP echo sweep | 10 or more inbound ICMP echo requests from one source within 5 seconds |
+| 9000003 | Possible ICMP echo-request burst | 10 or more inbound ICMP echo requests from one source within 5 seconds |
 | 9000004 | High-volume SSH connection attempts | 20 or more inbound SSH SYN connection attempts from one source within 60 seconds |
 
 All supplied signatures use the alert action. They generate events; they do not automatically drop packets.
