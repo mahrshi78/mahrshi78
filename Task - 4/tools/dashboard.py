@@ -21,8 +21,8 @@ def build_dashboard(alerts: list[dict]) -> str:
         if item["dest_port"] != "":
             destination = f"{destination}:{item['dest_port']}"
         rows.append(
-            "<tr data-severity=\\"{severity}\\">"
-            "<td>{timestamp}</td><td><span class=\\"pill {severity}\\">{label}</span></td>"
+            '<tr data-severity="{severity}">'
+            '<td>{timestamp}</td><td><span class="pill {severity}">{label}</span></td>'
             "<td>{signature}</td><td>{src}</td><td>{dst}</td><td>{proto}</td><td>{action}</td></tr>".format(
                 severity=html.escape(severity, quote=True),
                 timestamp=html.escape(item["timestamp"]),
