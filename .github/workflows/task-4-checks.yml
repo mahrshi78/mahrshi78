@@ -30,3 +30,9 @@ jobs:
         run: python -m pytest "Task - 4/tests" -v
       - name: Run Ruff
         run: python -m ruff check "Task - 4/tools" "Task - 4/tests"
+      - name: Build dashboard from synthetic EVE data
+        working-directory: "Task - 4"
+        run: python -m tools.dashboard --eve sample-data/eve_sample.json --output "${{ runner.temp }}/task4-dashboard.html"
+      - name: Build analyst response queue from synthetic EVE data
+        working-directory: "Task - 4"
+        run: python -m tools.triage --eve sample-data/eve_sample.json --output "${{ runner.temp }}/task4-response-queue.csv"
