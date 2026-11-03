@@ -1,5 +1,5 @@
-from pathlib import Path
 import re
+from pathlib import Path
 
 
 def test_custom_rules_have_four_unique_sids_and_alert_only_actions():
