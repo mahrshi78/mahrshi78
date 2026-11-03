@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import sqlite3
-from pathlib import Path
 
 import click
 from flask import current_app, g
