@@ -36,3 +36,6 @@ jobs:
       - name: Build analyst response queue from synthetic EVE data
         working-directory: "Task - 4"
         run: python -m tools.triage --eve sample-data/eve_sample.json --output "${{ runner.temp }}/task4-response-queue.csv"
+      - name: Build offline test PCAP
+        working-directory: "Task - 4"
+        run: python -m tools.create_test_pcap --output "${{ runner.temp }}/task4-test-traffic.pcap"
