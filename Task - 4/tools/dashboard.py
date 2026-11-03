@@ -46,9 +46,8 @@ def build_dashboard(alerts: list[dict]) -> str:
         ("Source IPs", len(sources), "sources"),
     ]
     cards = "".join(
-        '<article class="card {cls}"><div>{label}</div><strong>{value}</strong></article>'.format(
-            cls=cls, label=html.escape(label), value=value
-        )
+        f'<article class="card {cls}"><div>{html.escape(label)}</div>'
+        f"<strong>{value}</strong></article>"
         for label, value, cls in card_data
     )
 
