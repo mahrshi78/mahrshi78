@@ -6,3 +6,4 @@ logs/
 *.log
 dashboard.html
 response_queue.csv
+sample-data/*.pcap
