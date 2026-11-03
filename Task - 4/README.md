@@ -1,141 +1,62 @@
-# Task - 4: Network Intrusion Detection System (NIDS)
+# Task 4 — Network Intrusion Detection System Report
 
-A standalone Suricata-based Network Intrusion Detection System project for the CodSoft Cyber Security Internship. It uses custom alert-only signatures, a Python HTML dashboard for EVE JSON alerts, and a CSV analyst-review queue.
+**Engine:** Suricata  
+**Rules:** Four local alert-only signatures  
+**Dashboard:** Python standard library HTML report  
+**Response:** CSV analyst-review queue  
+**Scope:** Authorized lab traffic and supplied EVE sample data
 
-## Project structure
+## 1. Objective
 
-```text
-Task - 4/
-├── suricata/
-│   ├── local.rules
-│   └── home-net.example.yaml
-├── tools/
-│   ├── eve_utils.py
-│   ├── dashboard.py
-│   └── triage.py
-├── sample-data/
-│   └── eve_sample.json
-├── tests/
-│   ├── conftest.py
-│   ├── test_dashboard.py
-│   └── test_triage.py
-├── reports/
-│   └── SECURITY_ASSESSMENT.md
-├── screenshots/
-│   └── README.md
-├── requirements-dev.txt
-└── README.md
-```
+Configure Suricata to inspect authorized network traffic, apply custom signatures, generate alerts, and provide a readable event dashboard and basic response workflow.
 
-## Features
+## 2. Detection rules
 
-- Suricata custom rules for TCP SYN scan/burst, TCP SYN flood, ICMP echo-request burst, and high-volume SSH connection attempts.
-- Alert events written to Suricata EVE JSON output.
-- Local HTML dashboard with counts, severity labels, search, and filtering.
-- CSV response queue grouped by source IP for analyst review.
-- Automated tests for parsing, HTML escaping, severity grouping, and CSV output.
-
-## 1. Install Suricata
-
-Download the current Windows 64-bit installer from the official [Suricata download page](https://suricata.io/download/). Follow the installer prompts.
-
-Npcap is required for live packet capture on Windows. For an initial offline PCAP replay, you can start without live capture; add Npcap before attempting interface monitoring. See the official [Windows installation notes](https://docs.suricata.io/en/latest/install/windows.html).
-
-## 2. Configure the protected network
-
-Open the installed Suricata configuration file, usually named suricata.yaml. In its existing vars/address-groups section, adjust HOME_NET to your own lab subnet. The example in suricata/home-net.example.yaml shows RFC1918 private ranges; narrow this to the actual network you are authorized to monitor.
-
-Confirm that EVE JSON output is enabled and includes alert events. The output file should be named eve.json. See the official [EVE JSON output guide](https://docs.suricata.io/en/latest/output/eve/eve-json-output.html).
-
-The custom rules use SIDs 9000001–9000004 and the alert action only. They do not drop traffic.
-
-## 3. Validate and run against a PCAP first
-
-Open PowerShell in the Task - 4 folder. Replace the sample paths below with the actual Suricata config and an authorized PCAP path.
-
-Validate the installed configuration and local rules:
-
-```powershell
-& "C:\Program Files\Suricata\suricata.exe" -T -c "C:\Program Files\Suricata\suricata.yaml" -S ".\suricata\local.rules"
-```
-
-Analyze a PCAP file:
-
-```powershell
-New-Item -ItemType Directory -Force .\logs
-& "C:\Program Files\Suricata\suricata.exe" -c "C:\Program Files\Suricata\suricata.yaml" -r "C:\Path\To\authorized-capture.pcap" -S ".\suricata\local.rules" -l ".\logs"
-```
-
-The log directory should contain eve.json when EVE alert output is enabled. Start with offline PCAP analysis; only move to live monitoring after the rules and logs are working.
-
-## 4. Run authorized live monitoring
-
-After installing and verifying Npcap, run Suricata from an elevated PowerShell terminal and specify the correct capture interface ID:
-
-```powershell
-& "C:\Program Files\Suricata\suricata.exe" -c "C:\Program Files\Suricata\suricata.yaml" -i <INTERFACE_ID> -S ".\suricata\local.rules" -l ".\logs"
-```
-
-Use live capture only on your own device, lab, or a network for which you have explicit permission. Stop monitoring with Ctrl+C.
-
-## 5. Generate the dashboard and response queue
-
-The sample EVE file allows you to preview the dashboard before Suricata has been installed or run.
-
-Install the development tools:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-```
-
-Generate the dashboard from the supplied sample:
-
-```powershell
-.\.venv\Scripts\python.exe tools\dashboard.py --eve sample-data\eve_sample.json --output dashboard.html
-Start-Process .\dashboard.html
-```
-
-Generate the analyst response queue:
-
-```powershell
-.\.venv\Scripts\python.exe tools\triage.py --eve sample-data\eve_sample.json --output response_queue.csv
-```
-
-For real Suricata events, change the EVE input path to logs/eve.json.
-
-## 6. Run tests and code-quality checks
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest tests -v
-.\.venv\Scripts\python.exe -m ruff check tools tests
-```
-
-## Detection rule notes
-
-| SID | Rule | Threshold |
+| SID | Detection | Trigger |
 |---|---|---|
-| 9000001 | Possible TCP SYN port scan / burst | 12 inbound SYN packets from one source in 10 seconds |
-| 9000002 | Possible TCP SYN flood | 100 inbound SYN packets to one destination in 5 seconds |
-| 9000003 | ICMP echo-request burst | 10 requests from one source in 5 seconds |
-| 9000004 | High-volume SSH connection attempts | 20 SSH SYN attempts from one source in 60 seconds |
+| 9000001 | Possible TCP SYN port scan | 12 or more inbound SYN packets from one source within 10 seconds |
+| 9000002 | Possible TCP SYN flood | 100 or more inbound SYN packets to a destination within 5 seconds |
+| 9000003 | Possible ICMP echo-request burst | 10 or more inbound ICMP echo requests from one source within 5 seconds |
+| 9000004 | High-volume SSH connection attempts | 20 or more inbound SSH SYN connection attempts from one source within 60 seconds |
 
-These are heuristic thresholds. Tune them for your lab to reduce false positives. An SSH SYN burst indicates repeated connection attempts; it does not prove failed password logins.
+All supplied signatures use the alert action. They generate events; they do not automatically drop packets.
 
-## Basic response action
+## 3. Alert dashboard
 
-The triage utility creates response_queue.csv with source IP, event count, highest observed alert severity, first/last seen timestamps, and a recommended next step. It does not change Windows Firewall or block addresses automatically. Verify a source and obtain analyst approval before containment.
+The Python dashboard reads Suricata EVE JSON alert events and displays:
+- Total alert count and unique source IP count.
+- High, medium, and low alert counts.
+- Timestamp, signature, source, destination, protocol, and Suricata action.
+- Text search and severity filtering.
 
-## Safety and limitations
+The page escapes values from the EVE log before rendering them.
 
-- Monitor only authorized traffic and systems.
-- The included EVE data is synthetic training data using documentation/example IP ranges.
-- The sample dashboard proves the reporting code works; it does not prove Suricata has captured packets.
-- Suricata configuration/rule validation and live monitoring must be evidenced by genuine local output before claiming those activities are complete.
-- This project is a learning IDS workflow, not a replacement for a tuned production SOC deployment.
+## 4. Basic response workflow
 
-## Internship
+The triage script groups alert events by source IP and creates response_queue.csv with alert count, highest observed severity, first/last seen timestamps, and a recommended investigation action.
 
-**Organization:** CodSoft  
-**Domain:** Cyber Security  
-**Task:** 4 — Network Intrusion Detection System
+This is a human-review queue, not an automatic firewall block. Analysts should validate the host and related traffic before containment to avoid blocking legitimate systems.
+
+## 5. Test evidence
+
+The Python unit tests cover:
+- Filtering EVE JSON to alert events.
+- Skipping malformed JSON lines.
+- Mapping severity labels.
+- HTML escaping of untrusted event text.
+- Dashboard search/filter controls.
+- Grouping source IPs and creating the response CSV.
+
+Record the actual GitHub Actions and local test results after they run. Do not mark Suricata packet inspection or live network monitoring as verified until the Suricata engine has been installed and run against an authorized PCAP or interface.
+
+## 6. Limitations
+
+- Detection thresholds are educational starting points and need tuning for each network.
+- A SYN burst is a heuristic signal, not proof of a successful compromise or denial-of-service.
+- SSH SYN counts show connection attempts only; they do not prove password failures or a brute-force login.
+- The response queue does not change firewall rules.
+- Live monitoring on Windows requires a supported capture driver; PCAP replay can be used first.
+
+## Automated checks
+
+GitHub Actions: [Task 4 NIDS Checks — successful](https://github.com/mahrshi78/mahrshi78/actions/runs/41589721577). The workflow verified 9 Python tests and Ruff linting. Suricata engine installation, rule validation, and live/PCAP inspection still require local environment evidence.
