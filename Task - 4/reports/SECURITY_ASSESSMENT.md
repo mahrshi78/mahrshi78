@@ -47,7 +47,7 @@ The Python unit tests cover:
 - Dashboard search/filter controls.
 - Grouping source IPs and creating the response CSV.
 
-GitHub Actions verification on 3 November 2026: [Task 4 NIDS Checks](https://github.com/mahrshi78/mahrshi78/actions/runs/41598256365) completed successfully — **11 tests passed**, Ruff reported **All checks passed**, dashboard and response-queue smoke tests completed, and the synthetic 122-packet offline PCAP generator ran successfully. These checks validate the Python EVE/dashboard/triage utilities and the presence/shape of the local signatures. They do not execute the Suricata engine. Do not mark Suricata packet inspection or live network monitoring as verified until the engine has been installed, its configuration/rules validated, and it has been run against an authorized PCAP or interface.
+GitHub Actions verification on 3 November 2026: [Task 4 NIDS Checks](https://github.com/mahrshi78/mahrshi78/actions/runs/41598256365) completed successfully — **11 tests passed**, Ruff reported **All checks passed**, dashboard and response-queue smoke tests completed, and the synthetic 122-packet offline PCAP generator ran successfully. These checks validate the Python EVE/dashboard/triage utilities, local signature structure, and offline PCAP generator. Suricata engine execution and live PCAP replay are verified separately below.
 
 ## 6. Limitations
 
@@ -67,4 +67,14 @@ On 3 November 2026, Suricata **8.0.7 RELEASE** was successfully launched on the 
 
 The console also displayed two non-fatal warnings: the configured `threshold.config` file could not be found, and SID 9000004 (SSH SYN attempt rule) produced a direction-related optimization warning. These warnings are recorded rather than hidden. The successful configuration load does not, by itself, prove that a detection alert is generated from packets.
 
-**Still pending:** run the custom rules against an authorized PCAP or lab traffic, confirm a matching SID appears in `eve.json`, and capture genuine local evidence. Therefore the engine configuration test is complete, but the full Task 4 runtime validation remains in progress.
+### Local synthetic PCAP replay and detection validation
+
+On 3 November 2026, the user replayed the project-generated offline test PCAP through Suricata 8.0.7 on Windows. Suricata reported:
+
+- Engine started and stopped cleanly.
+- **1 PCAP file read, 122 packets, 6,444 bytes.**
+- The generated `fast.log` contained alerts for all four custom signatures: SID **9000001** (TCP SYN scan/burst), **9000002** (TCP SYN flood), **9000003** (ICMP echo-request burst), and **9000004** (high-volume SSH SYN connection attempts).
+
+This verifies offline packet inspection and custom alert generation for the synthetic training traffic. The PCAP uses documentation/example IP addresses and is not a real attack. The user's terminal screenshot is the supporting local evidence; add the original screenshot to `screenshots/` before final internship submission.
+
+**Scope limitation:** live interface monitoring over a sustained period was not exercised in this practical. The project includes the Suricata live-capture command for a permitted lab interface, but no claim is made that continuous live monitoring has been demonstrated.
