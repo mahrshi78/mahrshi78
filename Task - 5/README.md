@@ -127,3 +127,7 @@ Temporary links grant access to anyone who possesses the URL until it expires. S
 **Organization:** CodSoft  
 **Domain:** Cyber Security  
 **Task:** 5 — Secure File Sharing System
+
+## Automated verification
+
+[Task 5 Secure File Sharing Checks — successful](https://github.com/mahrshi78/mahrshi78/actions/runs/41600393846): 14 integration tests passed and Ruff reported All checks passed. Local Windows browser screenshots remain to be captured as separate internship evidence.
