@@ -24,7 +24,7 @@ Each task has its own folder for source code, screenshots, reports, tests, and d
 - [x] Task 1 – Network Packet Analyzer files added.
 - [x] Task 2 – Phishing Awareness Program module and documentation added.
 - [x] Task 3 – Secure Code Assessment project, findings, remediation, and tests added.
-- [ ] Task 4 – Network Intrusion Detection System files to be added.
+- [ ] Task 4 – NIDS project files and custom Suricata rules added; engine validation and local monitoring evidence pending.
 - [ ] Task 5 – Secure File Sharing System files to be added.
 
 > Use these projects only in authorized lab environments and on systems or networks for which you have permission.
