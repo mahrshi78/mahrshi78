@@ -25,6 +25,6 @@ Each task has its own folder for source code, screenshots, reports, tests, and d
 - [x] Task 2 – Phishing Awareness Program module and documentation added.
 - [x] Task 3 – Secure Code Assessment project, findings, remediation, and tests added.
 - [x] Task 4 – NIDS project, 11 passing tests, dashboard/triage CI, Suricata 8.0.7 configuration validation, and offline PCAP alert generation for all four custom SIDs completed. Sustained live-interface monitoring was not exercised.
-- [ ] Task 5 – Secure File Sharing System files to be added.
+- [x] Task 5 – CipherShare secure file-sharing app, encrypted storage, user/admin RBAC, per-file sharing, expiring download links, 14 passing integration tests, and Ruff checks completed. Local walkthrough screenshots remain as final submission evidence.
 
 > Use these projects only in authorized lab environments and on systems or networks for which you have permission.
