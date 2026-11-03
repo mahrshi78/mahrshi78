@@ -1,5 +1,13 @@
+"""Pytest fixtures and import-path setup for Task 5."""
+import sys
+from pathlib import Path
+
 import pytest
 from cryptography.fernet import Fernet
+
+TASK_ROOT = Path(__file__).resolve().parents[1]
+if str(TASK_ROOT) not in sys.path:
+    sys.path.insert(0, str(TASK_ROOT))
 
 from app import create_app
 from app.db import init_db
