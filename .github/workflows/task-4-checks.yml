@@ -1,0 +1,32 @@
+name: Task 4 NIDS Checks
+
+on:
+  push:
+    paths:
+      - "Task - 4/**"
+      - ".github/workflows/task-4-checks.yml"
+  pull_request:
+    paths:
+      - "Task - 4/**"
+      - ".github/workflows/task-4-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python development dependencies
+        run: python -m pip install -r "Task - 4/requirements-dev.txt"
+      - name: Run dashboard and response tests
+        run: python -m pytest "Task - 4/tests" -v
+      - name: Run Ruff
+        run: python -m ruff check "Task - 4/tools" "Task - 4/tests"
