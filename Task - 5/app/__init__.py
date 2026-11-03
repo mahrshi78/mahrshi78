@@ -4,10 +4,10 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from cryptography.fernet import Fernet
 from flask import Flask
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-from cryptography.fernet import Fernet
 
 from app.db import User, close_db, init_app as init_db_app
 
