@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}My files · CipherShare{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">SECURE WORKSPACE</p>
+    <h1>Your files, protected.</h1>
+    <p class="muted">Files are encrypted before they are written to server storage.</p>
+  </div>
+  <div class="role-chip">{{ current_user.role|upper }} ACCESS</div>
+</section>
+
+<section class="panel upload-panel">
+  <div><h2>Upload a file</h2><p class="muted">Maximum 10 MB. Allowed: PDF, TXT, CSV, PNG, JPG, DOCX, XLSX, PPTX and ZIP.</p></div>
+  <form method="post" action="{{ url_for('files.upload') }}" enctype="multipart/form-data" class="upload-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="file" name="file" required>
+    <button class="primary" type="submit">Encrypt & upload</button>
+  </form>
+</section>
+
+<section class="section-heading">
+  <div><h2>Available files</h2><p class="muted">Owned files and files explicitly shared with you.</p></div>
+  <span class="count">{{ files|length }} items</span>
+</section>
+
+{% if files %}
+<div class="file-grid">
+{% for file in files %}
+  <article class="file-card">
+    <div class="file-icon">FILE</div>
+    <div class="file-main">
+      <h3 title="{{ file.original_name }}">{{ file.original_name }}</h3>
+      <p class="muted">{{ file.size_bytes|filesizeformat }} · {{ file.access_type|title }} access</p>
+      {% if current_user.role == 'admin' or file.owner_id == current_user.id|int %}
+        <p class="muted small">Owner: {{ file.owner_username }}</p>
+      {% endif %}
+    </div>
+    <div class="file-actions">
+      <a class="secondary" href="{{ url_for('files.download', file_id=file.id) }}">Download</a>
+      {% if current_user.role == 'admin' or file.owner_id == current_user.id|int %}
+      <details>
+        <summary>Share & links</summary>
+        <form method="post" action="{{ url_for('files.share', file_id=file.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label>Share with username<input name="username" minlength="3" maxlength="32" required></label>
+          <button class="small-button" type="submit">Grant read access</button>
+        </form>
+        <form method="post" action="{{ url_for('files.create_temporary_link', file_id=file.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label>Temporary link expiry (minutes)<input type="number" name="minutes" min="1" max="1440" value="60" required></label>
+          <button class="small-button" type="submit">Create temporary link</button>
+        </form>
+      </details>
+      {% endif %}
+    </div>
+  </article>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><div class="empty-mark">+</div><h3>No files yet</h3><p class="muted">Upload a file to begin your encrypted workspace.</p></div>
+{% endif %}
+{% endblock %}
