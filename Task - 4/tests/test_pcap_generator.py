@@ -13,7 +13,7 @@ def test_creates_ethernet_pcap_with_expected_packet_count(tmp_path):
     offset = 24
     packet_count = 0
     while offset < len(raw):
-        seconds, micros, included, original = struct.unpack("<IIII", raw[offset:offset + 16])
+        _seconds, _micros, included, original = struct.unpack("<IIII", raw[offset:offset + 16])
         offset += 16
         assert included == original
         offset += included
