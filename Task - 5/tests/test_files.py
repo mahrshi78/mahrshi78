@@ -56,3 +56,30 @@ def test_upload_rejects_disallowed_extension(client, app):
     assert b"file type is not allowed" in response.data.lower()
     with app.app_context():
         assert get_db().execute("SELECT COUNT(*) AS n FROM files").fetchone()["n"] == 0
+
+
+def test_admin_can_download_another_users_file(client, app):
+    from werkzeug.security import generate_password_hash
+
+    signup(client, "alice")
+    client.post(
+        "/upload",
+        data={"file": (io.BytesIO(b"admin-readable"), "admin-check.txt")},
+        content_type="multipart/form-data",
+    )
+    with app.app_context():
+        db = get_db()
+        file_id = db.execute("SELECT id FROM files").fetchone()["id"]
+        db.execute(
+            "INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'admin')",
+            ("site_admin", generate_password_hash("Admin-Password-2026!")),
+        )
+        db.commit()
+
+    client.post("/logout")
+    client.post("/login", data={
+        "username": "site_admin", "password": "Admin-Password-2026!",
+    })
+    response = client.get(f"/{file_id}/download")
+    assert response.status_code == 200
+    assert response.data == b"admin-readable"
