@@ -156,7 +156,7 @@ The triage utility creates `response_queue.csv` with source IP, event count, hig
 
 ## Automated checks
 
-GitHub Actions: [Task 4 NIDS Checks — successful](https://github.com/mahrshi78/mahrshi78/actions/runs/41598256365). The workflow verified 9 Python tests and Ruff linting.
+GitHub Actions: [Task 4 NIDS Checks — successful](https://github.com/mahrshi78/mahrshi78/actions/runs/41598256365). The workflow verified 11 Python tests, Ruff linting, dashboard and response-queue smoke tests, and synthetic PCAP generation.
 
 ## Safety and limitations
 
@@ -175,3 +175,7 @@ GitHub Actions: [Task 4 NIDS Checks — successful](https://github.com/mahrshi78
 ## Local Suricata validation
 
 On 3 November 2026, Suricata 8.0.7 successfully loaded the installed configuration and Task 4 custom rules on the Windows host. Two non-fatal warnings were displayed (missing `threshold.config` and a direction-related optimization warning for SID 9000004). Actual alert generation from an authorized PCAP or live lab traffic is still to be verified.
+
+## Local PCAP detection evidence
+
+On 3 November 2026, Suricata 8.0.7 replayed the generated offline PCAP successfully: 1 file, 122 packets, 6,444 bytes. The local fast.log displayed alerts for SIDs 9000001, 9000002, 9000003 and 9000004. This verifies offline packet inspection and custom-rule alert generation. The original terminal screenshot should be added to `screenshots/` as final submission evidence. Sustained live-interface monitoring has not been demonstrated.
