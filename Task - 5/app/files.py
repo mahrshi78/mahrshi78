@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import sqlite3
 import io
 import secrets
 import time
@@ -11,8 +12,15 @@ from pathlib import Path
 
 from cryptography.fernet import Fernet, InvalidToken
 from flask import (
-    Blueprint, abort, current_app, flash, redirect, render_template,
-    request, send_file, url_for,
+    Blueprint,
+    abort,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    url_for,
 )
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
@@ -220,7 +228,7 @@ def share(file_id: str):
             db.commit()
             audit("share", file_id)
             flash("Read access granted.", "success")
-        except Exception:
+        except sqlite3.IntegrityError:
             db.rollback()
             flash("This file is already shared with that user.", "warning")
     return redirect(url_for("files.index"))
