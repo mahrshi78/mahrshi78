@@ -135,7 +135,7 @@ GitHub Actions: [Task 4 NIDS Checks — successful](https://github.com/mahrshi78
 - Monitor only authorized traffic and systems.
 - The included EVE data is synthetic training data using documentation/example IP ranges.
 - The sample dashboard proves the reporting code works; it does not prove Suricata has captured packets.
-- Suricata engine installation, rule validation, and PCAP/live inspection require genuine local evidence before those activities are marked complete.
+- Suricata 8.0.7 was launched and its configuration/custom-rule load test succeeded locally on Windows. PCAP/live detection evidence is still pending; configuration load alone does not prove alert generation.
 - This is a learning IDS workflow, not a replacement for a tuned production SOC deployment.
 
 ## Internship
@@ -143,3 +143,7 @@ GitHub Actions: [Task 4 NIDS Checks — successful](https://github.com/mahrshi78
 **Organization:** CodSoft  
 **Domain:** Cyber Security  
 **Task:** 4 — Network Intrusion Detection System
+
+## Local Suricata validation
+
+On 3 November 2026, Suricata 8.0.7 successfully loaded the installed configuration and Task 4 custom rules on the Windows host. Two non-fatal warnings were displayed (missing `threshold.config` and a direction-related optimization warning for SID 9000004). Actual alert generation from an authorized PCAP or live lab traffic is still to be verified.
