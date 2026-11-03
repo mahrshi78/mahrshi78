@@ -56,3 +56,15 @@ GitHub Actions verification on 3 November 2026: [Task 4 NIDS Checks](https://git
 - SSH SYN counts show connection attempts only; they do not prove password failures or a brute-force login.
 - The response queue does not change firewall rules.
 - Live monitoring on Windows requires a supported capture driver; PCAP replay can be used first.
+
+### Local Suricata configuration validation
+
+On 3 November 2026, Suricata **8.0.7 RELEASE** was successfully launched on the Windows host after adding the installed Npcap DLL directory to the current PowerShell session's PATH. The following configuration/rule validation command completed with the message **"Configuration provided was successfully loaded. Exiting."**:
+
+```powershell
+& "C:\Program Files\Suricata\suricata.exe" -T -c "C:\Program Files\Suricata\suricata.yaml" -S $rules
+```
+
+The console also displayed two non-fatal warnings: the configured `threshold.config` file could not be found, and SID 9000004 (SSH SYN attempt rule) produced a direction-related optimization warning. These warnings are recorded rather than hidden. The successful configuration load does not, by itself, prove that a detection alert is generated from packets.
+
+**Still pending:** run the custom rules against an authorized PCAP or lab traffic, confirm a matching SID appears in `eve.json`, and capture genuine local evidence. Therefore the engine configuration test is complete, but the full Task 4 runtime validation remains in progress.
