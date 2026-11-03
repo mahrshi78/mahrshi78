@@ -69,4 +69,6 @@ Reviewed components:
 
 ## 7. Verification
 
-Automated tests are designed to verify registration, password handling, encryption at rest, owner download, cross-user denial, share/revoke behavior, temporary-link expiry, file validation, and security response headers. Record actual CI and local run results after execution; do not report tests as passed before seeing the runner output.
+GitHub Actions verification on 3 November 2026: [Task 5 Secure File Sharing Checks](https://github.com/mahrshi78/mahrshi78/actions/runs/41600393846) completed successfully. **14 integration tests passed** and Ruff reported **All checks passed**. Tests cover registration and login, role assignment restrictions, encryption at rest, owner download, cross-user denial, administrator access, extension validation, security headers, explicit share/revoke, temporary-link success, expiry rejection, and invalid expiry handling.
+
+The CI run verifies the application code on GitHub-hosted Linux. A local Windows browser walkthrough and genuine screenshots remain useful submission evidence and should be captured before final internship submission.
