@@ -78,7 +78,35 @@ After installing and verifying Npcap, run Suricata from an elevated PowerShell t
 
 Use live capture only on your own device, lab, or a network for which you have explicit permission. Stop monitoring with Ctrl+C.
 
-## 5. Generate the dashboard and response queue
+## 5. Generate and replay a safe offline test PCAP
+
+The project includes a pure-Python PCAP generator. It writes synthetic Ethernet/IP/TCP SYN and ICMP echo-request packets using the documentation-only TEST-NET source address 198.51.100.24. It does not send traffic onto a network.
+
+From the Task - 4 folder, create the PCAP:
+
+```powershell
+.\.venv\Scripts\python.exe -m tools.create_test_pcap --output sample-data\task4-test-traffic.pcap --dest-ip 192.168.1.10
+```
+
+The default destination 192.168.1.10 must be inside your configured HOME_NET. If you changed HOME_NET, replace --dest-ip with an IP address inside your authorized lab subnet.
+
+Replay the generated PCAP through Suricata (offline replay only; no network packets are transmitted):
+
+```powershell
+New-Item -ItemType Directory -Force .\logs
+& "C:\Program Files\Suricata\suricata.exe" -c "C:\Program Files\Suricata\suricata.yaml" -r ".\sample-data\task4-test-traffic.pcap" -S ".\suricata\local.rules" -l ".\logs"
+```
+
+Check for local SIDs in fast.log:
+
+```powershell
+Select-String -Path .\logs\fast.log -Pattern "9000001|9000002|9000003|9000004"
+```
+
+If fast.log is not enabled, inspect eve.json for event_type alert and the local signature IDs. Save genuine output screenshots in screenshots/. The replay validates detection rules against synthetic traffic, not real-world compromise.
+
+## 6. Generate the dashboard and response queue
+
 
 The supplied EVE file lets you preview the dashboard before Suricata has been installed or run.
 
@@ -104,7 +132,7 @@ Generate the analyst response queue:
 
 For actual Suricata events, change the EVE input path to `logs/eve.json`.
 
-## 6. Run tests and code-quality checks
+## 7. Run tests and code-quality checks
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests -v
