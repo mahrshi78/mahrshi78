@@ -55,3 +55,15 @@ All message, website, and case-study examples are fictional training illustratio
 **Domain:** Cyber Security  
 **Task:** 2 – Phishing Awareness Program
 
+
+## Publish free on GitHub Pages
+
+This repository is public, so GitHub Pages is available on the GitHub Free plan. A workflow is already included at `.github/workflows/task-2-pages.yml`.
+
+One-time setup:
+1. Open [Repository Pages Settings](https://github.com/mahrshi78/mahrshi78/settings/pages).
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+3. Save. The Pages workflow can then deploy this static site.
+4. Check the **Deploy Task 2 Phishing Awareness to GitHub Pages** workflow in the Actions tab. After a successful deployment, the site URL should be `https://mahrshi78.github.io/mahrshi78/`.
+
+GitHub Pages only publishes static files. It does not run the Python/Flask server required by Task 5.
