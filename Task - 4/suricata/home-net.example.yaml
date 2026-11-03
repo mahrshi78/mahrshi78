@@ -1,0 +1,8 @@
+# Example address-group values for the existing suricata.yaml file.
+# Copy/adapt these values into its vars: address-groups section.
+# This fragment is not a complete standalone Suricata configuration.
+
+vars:
+  address-groups:
+    HOME_NET: "[10.0.0.0/8,172.16.0.0/12,192.168.0.0/16]"
+    EXTERNAL_NET: "!$HOME_NET"
